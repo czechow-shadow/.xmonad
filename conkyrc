@@ -1,0 +1,33 @@
+
+conky.config = {
+    background = false,
+    cpu_avg_samples = 2,
+    out_to_console = true,
+    out_to_x = false,
+    out_to_stderr = false,
+    extra_newline = false,
+    stippled_borders = 0,
+    update_interval = 3.0,
+}
+
+conky.text = [[
+^fg(\#999999)${hwmon 4 temp 1}°^fg()   \
+^fg(\#666666)${loadavg 1}^fg()  \
+^fg(\#888888)${cpu cpu0}%^fg()   ^fg(\#aaaaaa)${freq_g 1}GHz^fg()   \
+^fg(\#666666)${memeasyfree}^fg()   \
+^fg(\#91b8ff)\
+${if_existing /sys/class/power_supply/BAT0/present}\
+${battery_short BAT0} (${battery_time BAT0})\
+${else}\
+AC
+\${endif}\
+^fg()   \
+${if_up wlp2s0}\
+^fg(\#bbbbbb)${wireless_link_qual_perc wlp2s0}%  ${wireless_essid wlp2s0}^fg() \
+^fg(\#d94c3d)${upspeedf wlp2s0}k^fg() ^fg(\#a4bc51)${downspeedf wlp2s0}k^fg() \
+${else}\
+^fg(\#bbbbbb)eno1^fg() \
+^fg(\#d94c3d)${upspeedf eno1}k^fg() ^fg(\#a4bc51)${downspeedf eno1}k^fg() \
+${endif}  \
+^fg(\#ffffff)${tztime Europe/Warsaw %a %Y-%m-%d %H:%M}^fg() \
+]]
