@@ -100,12 +100,12 @@ pcModMask :: KeyMask
 pcModMask = mod4Mask
 
 pcBrowser :: String
--- pcBrowser = "chromium"
-pcBrowser = "firefox"
+pcBrowser = "chromium"
+--pcBrowser = "firefox"
 
 pcBrowserIncognito :: String
--- pcBrowserIncognito = "chromium --incognito"
-pcBrowserIncognito = "firefox -private-window"
+pcBrowserIncognito = "chromium --incognito"
+--pcBrowserIncognito = "firefox -private-window"
 
 pcLock :: String
 pcLock = "/home/czechow/bin/lock"
