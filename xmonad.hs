@@ -26,6 +26,27 @@ import qualified Graphics.X11.ExtraTypes.XF86 as XF86
 import           System.Exit                  (ExitCode (..), exitWith)
 import           System.IO                    (hPutStrLn)
 
+
+import XMonad.Actions.DynamicProjects
+import XMonad.Actions.DynamicWorkspaces
+
+
+projects :: [Project]
+projects =
+  []
+  -- <>
+  -- [ Project { projectName      = "scratch"
+  --           , projectDirectory = "~/"
+  --           , projectStartHook = Nothing
+  --           }
+
+  -- , Project { projectName      = "browser"
+  --           , projectDirectory = "~/"
+  --           , projectStartHook = Just $ do spawn "firefox"
+  --                                          spawn "gvim"
+  --           }
+  -- ]
+
 -- FIXME:
 -- 1. Resolve problem with type -- import XMonad.Layout.LayoutModifier
 
@@ -35,7 +56,7 @@ main = do
   void $ spawnPipe $ "conky -c ~/.xmonad/conkyrc"
                   <> " | dzen2 -dock -x 720 -w 880 -ta r" <> pcDzenStyle
 
-  xmonad $ HMD.docks $ CD.desktopConfig
+  xmonad $ dynamicProjects projects $ HMD.docks $ CD.desktopConfig
     { modMask = pcModMask
     , terminal = "xfce4-terminal"
     , borderWidth = 3
@@ -117,25 +138,33 @@ pcWsKeySyms :: [KeySym]
 pcWsKeySyms = [xK_grave] <> [xK_1 .. xK_9] <> [xK_0, xK_minus, xK_equal]
 
 upWS :: WindowSet -> WindowSet
-upWS ws = case SS.currentTag ws of
-  ('\'':wsname) -> SS.view wsname ws
-  _             -> ws
+upWS ws = case reverse $ SS.currentTag ws of
+  ('\'':wsnameRev) -> SS.view (reverse wsnameRev) ws
+  _                 -> ws
 
-downWS :: WindowSet -> WindowSet
-downWS ws = case SS.currentTag ws of
-  ('\'':_) -> ws
-  wsname -> SS.view ('\'':wsname) ws
+downAndMaybeAddWS :: X ()
+downAndMaybeAddWS = maybeAddPrimWS >>= XMonad.windows . SS.view
 
 shiftToUp :: WindowSet -> WindowSet
-shiftToUp ws = case SS.currentTag ws of
-  ('\'':wsname) -> SS.shift wsname ws
+shiftToUp ws = case reverse $ SS.currentTag ws of
+  ('\'':wsname) -> SS.shift (reverse wsname) ws
   _             -> ws
 
-shiftToDown :: WindowSet -> WindowSet
-shiftToDown ws = case SS.currentTag ws of
-  ('\'':_) -> ws
-  wsname -> SS.shift ('\'':wsname) ws
+maybeAddPrimWS :: X WorkspaceId
+maybeAddPrimWS = withWindowSet $ \(wset :: WindowSet) -> do
+  let tag' :: WorkspaceId = SS.currentTag wset <> "'"
+  case findWS wset tag' of
+    Nothing -> appendWorkspace tag' >> pure tag'
+    _ -> pure tag'
 
+findWS :: WindowSet -> WorkspaceId -> Maybe WindowSpace
+findWS ws wId =
+  case filter (\SS.Workspace{SS.tag} -> tag == wId) $ SS.workspaces ws of
+    [] -> Nothing
+    v:_ -> Just v
+
+shiftToDownAndMaybeAddWS :: X ()
+shiftToDownAndMaybeAddWS = maybeAddPrimWS >>= XMonad.windows . SS.shift
 
 pcKeysFun :: XConfig Layout -> M.Map (ButtonMask, KeySym) (X ())
 pcKeysFun conf@XConfig{modMask} = M.fromList $
@@ -152,12 +181,12 @@ pcKeysFun conf@XConfig{modMask} = M.fromList $
 
   , ((modMask, xK_Right), CWS.nextWS)
   , ((modMask, xK_Left), CWS.prevWS)
-  , ((modMask, xK_Down), XMonad.windows downWS)
+  , ((modMask, xK_Down), downAndMaybeAddWS)
   , ((modMask, xK_Up), XMonad.windows upWS)
 
   , ((modMask .|. shiftMask, xK_Right), CWS.shiftToNext)
   , ((modMask .|. shiftMask, xK_Left),  CWS.shiftToPrev)
-  , ((modMask .|. shiftMask, xK_Down), XMonad.windows shiftToDown)
+  , ((modMask .|. shiftMask, xK_Down), shiftToDownAndMaybeAddWS)
   , ((modMask .|. shiftMask, xK_Up), XMonad.windows shiftToUp)
 
   , ((modMask .|. controlMask .|. shiftMask, xK_l), spawn pcLock)
@@ -177,9 +206,9 @@ pcKeysFun conf@XConfig{modMask} = M.fromList $
 
   , ( (modMask .|. controlMask .|. shiftMask, xK_q)
     , io (exitWith ExitSuccess)) -- %! Quit xmonad
-  , ((modMask .|. controlMask, xK_q)
+  , ((modMask .|. controlMask, xK_r)
     , spawn "if type xmonad; then \
-            \  xmonad --recompile && xmonad --restart; \
+            \  pkill conky; xmonad --recompile && xmonad --restart; \
             \else \
             \  xmessage xmonad not in \\$PATH: \"$PATH\"; \
             \fi")
@@ -190,7 +219,12 @@ pcKeysFun conf@XConfig{modMask} = M.fromList $
   , ((0, XF86.xF86XK_AudioMute        ), spawn "amixer set Master toggle \
                                                \&& amixer set Headphone on")
   ]
-
+  <>
+  [ ((modMask, xK_slash), switchProjectPrompt def)
+  , ((modMask .|. shiftMask, xK_slash), shiftToProjectPrompt def)
+  , ((modMask, xK_r), renameProjectPrompt def)
+  , ((modMask, xK_BackSpace), removeWorkspace)
+  ]
 
 pcKeysRemoveFun :: XConfig Layout -> S.Set (ButtonMask, KeySym)
 pcKeysRemoveFun _ = S.fromList []
