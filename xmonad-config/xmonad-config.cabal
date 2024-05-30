@@ -1,0 +1,16 @@
+name:               xmonad-config
+version:            0.18.0
+
+cabal-version:      1.12
+build-type:         Simple
+
+executable xmonad-x86_64-linux
+  hs-source-dirs:      app
+  main-is:             xmonad.hs
+  ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
+  build-depends:       base
+                     , containers
+                     , X11
+                     , xmonad
+                     , xmonad-contrib
+  default-language:    Haskell2010

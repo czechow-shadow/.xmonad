@@ -5,3 +5,10 @@ xmonad.errors
 xmonad.hi
 xmonad.o
 prompt-history
+build-x86_64-linux
+
+stack.yaml.lock
+.stack-work
+
+xmonad-0.18.0
+xmonad-contrib-0.18.0

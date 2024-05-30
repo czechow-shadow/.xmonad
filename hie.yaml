@@ -1,0 +1,16 @@
+cradle:
+  multi:
+    - path: "Setup.hs"
+      config:
+        cradle:
+          none:
+    - path: "./"
+      config:
+        cradle:
+          stack:
+            - path: "./xmonad-0.18.0/src"
+              component: "xmonad:lib"
+            - path: "./xmonad-contrib-0.18.0"
+              component: "xmonad-contrib:lib"
+            - path: "./xmonad-config/app"
+              component: "xmonad-config:exe:xmonad-x86_64-linux"
