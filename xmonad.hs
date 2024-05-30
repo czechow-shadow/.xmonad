@@ -92,27 +92,23 @@ pcStartupHook = do
   pure ()
 
 pcWorkspaces :: [String]
-pcWorkspaces = map (:[]) gen <> map (\c -> '\'':c:[]) gen
-  where
-    gen = ['u'] <> ['1' .. '9'] <> ['0', 'm', 'v']
-
-
+pcWorkspaces =
+  ["useful"] <> map (:[]) (['1' .. '9'] <> ['0']) <> ["mail", "video"]
 
 pcDzenStyle :: String
 pcDzenStyle = " -h 20 -fg '#777777' -bg '#222222' -fn arial:bold:size=11"
 
 pcDzenPP :: HDL.PP
 pcDzenPP = HDL.dzenPP
-  { HDL.ppCurrent = HDL.dzenColor "#3399ff" "" . HDL.wrap " " " " . take 1
+  { HDL.ppCurrent =
+    \xs -> HDL.dzenColor "#3399ff" "" . HDL.wrap " " " " $ ("[" <> xs <> "]")
   , HDL.ppHidden  = HDL.dzenColor "#dddddd" "" . HDL.wrap " " " " . take 1
-  , HDL.ppHiddenNoWindows = HDL.dzenColor "#777777" ""
-                          . HDL.wrap " " " " . take 1
-  , HDL.ppUrgent  = HDL.dzenColor "#ff0000" "" . HDL.wrap " " " "
-  , HDL.ppSep     = "     "
+  , HDL.ppHiddenNoWindows = take 0
+  , HDL.ppUrgent  = take 0
+  , HDL.ppSep     = " "
   , HDL.ppLayout  = HDL.dzenColor "#aaaaaa" "" . HDL.wrap " " " "
   , HDL.ppTitle   = HDL.dzenColor "#ffffff" ""
                   . HDL.wrap " " " "
-                  . HDL.shorten 64
                   . HDL.dzenEscape
   }
 
