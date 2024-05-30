@@ -32,8 +32,8 @@ resolver: lts-18.25
 #   - auto-update
 #   - wai
 packages:
-- xmonad-0.18.0
-- xmonad-contrib-0.18.0
+- xmonad
+- xmonad-contrib
 - xmonad-config
 # Dependency packages to be pulled from upstream that are not in the resolver.
 # These entries can reference officially published versions as well as

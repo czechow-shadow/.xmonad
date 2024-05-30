@@ -1,5 +1,4 @@
 TAGS
-xmonad
 xmonad-x86_64-linux
 xmonad.errors
 xmonad.hi
@@ -9,6 +8,3 @@ build-x86_64-linux
 
 stack.yaml.lock
 .stack-work
-
-xmonad-0.18.0
-xmonad-contrib-0.18.0
